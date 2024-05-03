@@ -1,0 +1,47 @@
+name: Trigger and Wait for Other Repository Workflow
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    outputs:
+      workflow_id: ${{ steps.get_workflow_id.outputs.workflow_id }}
+    steps:
+      - name: Trigger workflow in other repository
+        id: dispatch
+        run: |
+          RESPONSE=$(curl -X POST \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: token ${TOKEN}" \
+            https://github.com/umasad087/RepoB/dispatches \
+            -d '{"event_type": "triggered-from-other-repo"}')
+          echo "::set-output name=workflow_id::$(echo $RESPONSE | jq '.id')"
+        env:
+          TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+  
+  wait:
+    needs: trigger
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for the triggered workflow to complete
+        run: |
+          WORKFLOW_ID=${{ needs.trigger.outputs.workflow_id }}
+          STATUS="queued"
+          while [[ "$STATUS" == "queued" || "$STATUS" == "in_progress" ]]
+          do
+            RESULT=$(curl -H "Authorization: token ${TOKEN}" \
+              https://github.com/umasad087/RepoB/actions/runs/$WORKFLOW_ID)
+            STATUS=$(echo $RESULT | jq -r '.status')
+            if [[ "$STATUS" == "completed" ]]
+            then
+              break
+            fi
+            echo "Workflow status: $STATUS. Waiting..."
+            sleep 60
+          done
+        env:
+          TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
