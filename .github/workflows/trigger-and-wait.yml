@@ -34,6 +34,7 @@ jobs:
             STATUS=$(echo $WORKFLOWS | jq -r '.workflow_runs[] | select(.id=='"$WORKFLOW_ID"').status')
             if [[ "$STATUS" == "completed" ]]
             then
+              echo "Workflow status: $STATUS.
               break
             fi
             echo "Workflow status: $STATUS. Waiting..."
