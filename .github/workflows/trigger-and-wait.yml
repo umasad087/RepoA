@@ -14,7 +14,7 @@ jobs:
           curl -X POST \
             -H "Accept: application/vnd.github.v3+json" \
             -H "Authorization: token ${TOKEN}" \
-            https://github.com/umasad087/RepoB/dispatches \
+            https://api.github.com/repos/umasad087/RepoB/dispatches \
             -d '{"event_type": "triggered-from-other-repo"}'
         env:
           TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
@@ -29,7 +29,7 @@ jobs:
           while [[ "$STATUS" == "queued" || "$STATUS" == "in_progress" ]]
           do
             WORKFLOWS=$(curl -H "Authorization: token ${TOKEN}" \
-              "https://github.com/umasad087/RepoB/actions/runs?event=repository_dispatch")
+              "https://api.github.com/repos/umasad087/RepoB/actions/runs?event=repository_dispatch")
             WORKFLOW_ID=$(echo $WORKFLOWS | jq '[.workflow_runs[] | select(.head_branch=="main" and .status!="completed")] | .[0].id')
             STATUS=$(echo $WORKFLOWS | jq -r '.workflow_runs[] | select(.id=='"$WORKFLOW_ID"').status')
             if [[ "$STATUS" == "completed" ]]
