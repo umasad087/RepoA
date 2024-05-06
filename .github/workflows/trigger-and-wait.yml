@@ -60,6 +60,7 @@ jobs:
           TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
   # fourth job
   trigger-two:
+    needs: build-test
     runs-on: ubuntu-latest
     steps:
       - name: Trigger workflow in another repository
