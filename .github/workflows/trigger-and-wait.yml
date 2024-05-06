@@ -44,6 +44,7 @@ jobs:
           TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
   
   jobs:
+      needs: wait
       runs-on: ubuntu-latest
       steps:
         - name: build-test
