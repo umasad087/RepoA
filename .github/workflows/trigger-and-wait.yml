@@ -3,7 +3,7 @@ name: Trigger and Wait for Other Repository Workflow
 on:
   push:
     branches:
-      - test1-B
+      - main
 
 jobs:
   trigger:
