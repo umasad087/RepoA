@@ -1,66 +1,53 @@
-name: Main Pipeline
+name: Trigger and Wait for Other Repository Workflow
 
 on:
-  workflow_dispatch:
-    inputs:
-      repo:
-        description: 'Developer repository'
-        required: true
-      branch:
-        description: 'Branch to build'
-        required: true
+  push:
+    branches:
+      - test1-B
 
 jobs:
-  clone-and-scan:
+  trigger:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repoDev code
-        uses: actions/checkout@v2
-        with:
-          repository: ${{ github.event.inputs.repo }}
-          ref: ${{ github.event.inputs.branch }}
+      - name: Trigger workflow in other repository
+        run: |
+          curl -X POST \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: token ${TOKEN}" \
+            https://api.github.com/repos/umasad087/RepoB/dispatches \
+            -d '{"event_type": "triggered-from-other-repo"}'
+        env:
+          TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
-      - name: Perform Code and OSS Snyk Scans
-        run: echo "Performing initial scans..."
-        # Replace this with actual scan commands
-
-      - name: Read config for build pipeline
-        id: config-build
-        run: echo "include-build-pipeline=true"  # Simulate reading config
-        # Implement actual logic to decide if the build should proceed
-
-      - name: Trigger repoDev build pipeline if condition is met
-        if: ${{ steps.config-build.outputs.include-build-pipeline == 'true' }}
-        uses: octokit/request-action@v2.x
-        with:
-          route: POST /repos/${{ github.event.inputs.repo }}/dispatches
-          type: build
-          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
-  image-scan:
-    needs: clone-and-scan
+  wait:
     runs-on: ubuntu-latest
     steps:
-      - name: Perform Image Snyk Scans
-        run: echo "Performing image scans..."
-        # Add actual image scan commands here
-
-      - name: Read config for deploy pipeline
-        id: config-deploy
-        run: echo "include-deploy-pipeline=true"  # Simulate reading config
-        # Implement actual logic to decide if deployment should proceed
-
-      - name: Trigger repoDev deploy pipeline if condition is met
-        if: ${{ steps.config-deploy.outputs.include-deploy-pipeline == 'true' }}
-        uses: octokit/request-action@v2.x
-        with:
-          route: POST /repos/${{ github.event.inputs.repo }}/dispatches
-          type: deploy
-          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
-  finish:
-    needs: image-scan
-    runs-on: ubuntu-latest
-    steps:
-      - name: End Main Pipeline
-        run: echo "Main pipeline execution complete."
+      - name: Wait for the triggered workflow to complete
+        run: |
+          sleep 10 # Wait a bit for the workflow to start
+          STATUS="queued"
+          while [[ "$STATUS" == "queued" || "$STATUS" == "in_progress" ]]
+          do
+            WORKFLOWS=$(curl -H "Authorization: token ${TOKEN}" \
+              "https://api.github.com/repos/umasad087/RepoB/actions/runs?event=repository_dispatch")
+            WORKFLOW_ID=$(echo $WORKFLOWS | jq '[.workflow_runs[] | select(.head_branch=="main" and .status!="completed")] | .[0].id')
+            STATUS=$(echo $WORKFLOWS | jq -r '.workflow_runs[] | select(.id=='"$WORKFLOW_ID"').status')
+            if [[ "$STATUS" == "completed" ]]
+            then
+              echo "Workflow status: $STATUS."
+              break
+            fi
+            echo "Workflow status: $STATUS. Waiting..."
+            sleep 60
+          done
+        env:
+          TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+  
+  jobs:
+      runs-on: ubuntu-latest
+      steps:
+        - name: build-test
+          run: |
+            echo "I am building the code.."
+          env:
+            TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
