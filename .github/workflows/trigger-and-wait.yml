@@ -51,4 +51,19 @@ jobs:
           run: |
             echo "I am building the code.."
           env:
-            TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+            TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }
+  
+  jobs:
+    needs: build-test
+    trigger:
+      runs-on: ubuntu-latest
+    steps:
+      - name: Trigger workflow in another repository
+        run: |
+          curl -X POST \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: token ${TOKEN}" \
+            https://api.github.com/repos/umasad087/RepoB/dispatches \
+            -d '{"event_type": "triggered-from-other-repo"}'
+        env:
+          TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
