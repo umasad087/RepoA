@@ -47,6 +47,7 @@ jobs:
       runs-on: ubuntu-latest
       steps:
         - name: build-test
+          run: |
             echo "I am building the code.."
           env:
             TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
