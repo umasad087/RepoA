@@ -22,7 +22,7 @@ jobs:
 
   # Second job: waits for the triggered workflow to complete before continuing
   wait-one:
-    needs: trigger  # Ensure that this job waits until the "trigger" job finishes
+    needs: trigger-one  # Ensure that this job waits until the "trigger" job finishes
     runs-on: ubuntu-latest
     steps:
       - name: Wait for the triggered workflow to complete
@@ -73,8 +73,8 @@ jobs:
           TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   # 5th job: waits for the triggered workflow to complete before continuing
-  wait-2nd:
-    needs: trigger  # Ensure that this job waits until the "trigger" job finishes
+  wait-two:
+    needs: trigger-two  # Ensure that this job waits until the "trigger" job finishes
     runs-on: ubuntu-latest
     steps:
       - name: Wait for the 2nd triggered workflow to complete
@@ -102,7 +102,7 @@ jobs:
 
   # sixth job: build and test, which depends on the "wait" job
   deploy:
-    needs: wait-2nd  # Make sure this job only runs after the "wait" job finishes
+    needs: wait-two  # Make sure this job only runs after the "wait" job finishes
     runs-on: ubuntu-latest
     steps:
       - name: deploy
