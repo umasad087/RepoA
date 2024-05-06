@@ -3,7 +3,7 @@ name: Trigger and Wait for Other Repository Workflow
 on:
   push:
     branches:
-      - main
+      - test1-B
 
 jobs:
   trigger:
@@ -42,3 +42,11 @@ jobs:
           done
         env:
           TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+  
+  jobs:
+      runs-on: ubuntu-latest
+      steps:
+        - name: build-test
+            echo "I am building the code.."
+          env:
+            TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
