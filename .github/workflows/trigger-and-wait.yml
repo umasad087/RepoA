@@ -1,6 +1,8 @@
 name: Trigger and Wait for Other Repository Workflow
 
 on:
+  repository_dispatch:
+    type: [main-workflow]
   push:
     branches:
       - main
