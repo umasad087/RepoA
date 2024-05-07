@@ -3,10 +3,7 @@ name: Trigger and Wait for Other Repository Workflow
 on:
   repository_dispatch:
     type: [main-workflow]
-  push:
-    branches:
-      - main
-
+  
 jobs:
   snyk-code-OSS-scan:
     runs-on: ubuntu-latest
