@@ -21,13 +21,13 @@ jobs:
       - name: Trigger the main workflow
         run: |
           WORKFLOW_ID=$(curl -s -H "Authorization: token ${TOKEN}" \
-            "https://api.github.com/repos/${{github.owner}}/RepoA/actions/workflows/trigger-and-wait.yml" \
+            "https://api.github.com/repos/umasad087/RepoA/actions/workflows/trigger-and-wait.yml" \
             | jq -r '.id')
 
           curl -X POST \
             -H "Authorization: token ${TOKEN}" \
             -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{github.owner}}/RepoA/actions/workflows/$WORKFLOW_ID/dispatches" \
+            "https://api.github.com/repos/umasad087/RepoA/actions/workflows/$WORKFLOW_ID/dispatches" \
             -d '{"ref": "main", "inputs": {}}'
 
           echo "Triggered by user: ${{ github.event.client_payload.username }}"
