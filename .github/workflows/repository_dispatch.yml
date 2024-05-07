@@ -28,7 +28,7 @@ jobs:
             -H "Authorization: token ${TOKEN}" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/umasad087/RepoA/actions/workflows/$WORKFLOW_ID/dispatches" \
-            -d '{"ref": "main", "inputs": {}}'
+            -d '{\"event_type\": \"main-workflow\","ref": "main", "inputs": {}}'
 
           echo "Triggered by user: ${{ github.event.client_payload.username }}"
           echo "From repository: ${{ github.event.client_payload.repo_url }}"
