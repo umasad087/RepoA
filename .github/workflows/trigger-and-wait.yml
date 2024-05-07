@@ -8,23 +8,32 @@ on:
       - main
 
 jobs:
-  # First job: triggers a workflow in another repository
-  trigger-one:
+  snyk-code-OSS-scan:
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger workflow in other repository
+      - name: snyk code and OSS scan
+        run: |
+          echo "Initial Snyk setup on runner code goes here"
+          echo "Snyk code scan code goes here"
+          echo "Snyk OSS scan code goes here"
+  # First job: triggers a workflow in another repository
+  trigger-compile-code:
+    needs: snyk-code-OSS-scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger workflow in child repository to compile code
         run: |
           curl -X POST \
             -H "Accept: application/vnd.github.v3+json" \
             -H "Authorization: token ${TOKEN}" \
             https://api.github.com/repos/umasad087/RepoB/dispatches \
-            -d '{"event_type": "triggered-from-other-repo"}'
+            -d '{"event_type": "compile-code"}'
         env:
           TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   # Second job: waits for the triggered workflow to complete before continuing
   wait-one:
-    needs: trigger-one  # Ensure that this job waits until the "trigger" job finishes
+    needs: trigger-compile-code  # Ensure that this job waits until the "trigger" job finishes
     runs-on: ubuntu-latest
     steps:
       - name: Wait for the triggered workflow to complete
@@ -51,36 +60,35 @@ jobs:
           TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   # Third job: build and test, which depends on the "wait" job
-  build-test:
+  snyk-image-scan:
     needs: wait-one  # Make sure this job only runs after the "wait" job finishes
     runs-on: ubuntu-latest
     steps:
-      - name: Build and Test
+      - name: snyk-image-scan
         run: |
-          echo "I am building the code..."
-        env:
-          TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          echo "Snyk image scan code goes here."
+
   # fourth job
-  trigger-two:
-    needs: build-test
+  trigger-deploy:
+    needs: snyk-image-scan
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger workflow in another repository
+      - name: Trigger workflow in child repository to deploy image
         run: |
           curl -X POST \
             -H "Accept: application/vnd.github.v3+json" \
             -H "Authorization: token ${TOKEN}" \
             https://api.github.com/repos/umasad087/RepoB/dispatches \
-            -d '{"event_type": "triggered-from-other-repo"}'
+            -d '{"event_type": "deploy-image"}'
         env:
           TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   # 5th job: waits for the triggered workflow to complete before continuing
   wait-two:
-    needs: trigger-two  # Ensure that this job waits until the "trigger" job finishes
+    needs: trigger-deploy  # Ensure that this job waits until the "trigger" job finishes
     runs-on: ubuntu-latest
     steps:
-      - name: Wait for the 2nd triggered workflow to complete
+      - name: Wait for the deploy workflow to complete
         run: |
           sleep 10  # Wait a bit for the secondary workflow to start
           STATUS="queued"
@@ -104,12 +112,10 @@ jobs:
           TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   # sixth job: build and test, which depends on the "wait" job
-  deploy:
+  end-pipeline:
     needs: wait-two  # Make sure this job only runs after the "wait" job finishes
     runs-on: ubuntu-latest
     steps:
-      - name: deploy
+      - name: end-main-pipeline
         run: |
-          echo "I am deploying the code..."
-        env:
-          TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          echo "successfully deployed"
