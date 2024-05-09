@@ -55,16 +55,6 @@ jobs:
               echo "Workflow status: $STATUS. Polling again in $INTERVAL seconds..."
               sleep "$INTERVAL"
             done
-          #sleep 10  # Wait a bit for the secondary workflow to start
-          #STATUS="queued"
-          #while [[ "$STATUS" == "queued" || "$STATUS" == "in_progress" ]]
-          #do
-            # Check the workflow runs in the secondary repository
-          #  WORKFLOWS=$(curl -H "Authorization: token ${TOKEN}" \
-           #   "https://api.github.com/repos/umasad087/RepoB/actions/runs?event=repository_dispatch")
-            # Extract the workflow run ID and status
-            #WORKFLOW_ID=$(echo $WORKFLOWS | jq '[.workflow_runs[] | select(.head_branch=="main" and .status!="completed")] | .[0].id')
-            #STATUS=$(echo $WORKFLOWS | jq -r '.workflow_runs[] | select(.id=='"$WORKFLOW_ID"').status')
         env:
           TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
