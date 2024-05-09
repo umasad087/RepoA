@@ -37,11 +37,11 @@ jobs:
         run: |
             # Set the initial status and loop interval
             STATUS="queued"
-            INTERVAL= 15  # Poll every 15 seconds
+            INTERVAL=15  # Poll every 15 seconds
           
             # Use the GitHub API to check for completion
             while [[ "$STATUS" == "queued" || "$STATUS" == "in_progress" ]]; do
-              WORKFLOWS=$(curl -H "Authorization: token ${PERSONAL_ACCESS_TOKEN}" \
+              WORKFLOWS=$(curl -H "Authorization: token ${TOKEN}" \
                 "https://api.github.com/repos/umasad087/repoB/actions/runs?event=main-workflow-initiate")
 
               # Extract the workflow status
@@ -95,7 +95,7 @@ jobs:
           
             # Use the GitHub API to check for completion
             while [[ "$STATUS" == "queued" || "$STATUS" == "in_progress" ]]; do
-              WORKFLOWS=$(curl -H "Authorization: token ${PERSONAL_ACCESS_TOKEN}" \
+              WORKFLOWS=$(curl -H "Authorization: token ${TOKEN}" \
                 "https://api.github.com/repos/umasad087/repoB/actions/runs?event=main-workflow-initiate")
 
               # Extract the workflow status
