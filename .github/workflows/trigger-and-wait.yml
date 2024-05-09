@@ -42,7 +42,7 @@ jobs:
             # Use the GitHub API to check for completion
             while [[ "$STATUS" == "queued" || "$STATUS" == "in_progress" ]]; do
               WORKFLOWS=$(curl -H "Authorization: token ${TOKEN}" \
-                "https://api.github.com/repos/<target-owner>/<target-repo>/actions/runs?event=main-workflow-initiate")
+                "https://api.github.com/repos/umasad087/repoB/actions/runs?event=main-workflow-initiate")
 
               # Extract the workflow status
               STATUS=$(echo "$WORKFLOWS" | jq -r '.workflow_runs[] | select(.status!="completed").status')
@@ -106,7 +106,7 @@ jobs:
             # Use the GitHub API to check for completion
             while [[ "$STATUS" == "queued" || "$STATUS" == "in_progress" ]]; do
               WORKFLOWS=$(curl -H "Authorization: token ${TOKEN}" \
-                "https://api.github.com/repos/<target-owner>/<target-repo>/actions/runs?event=main-workflow-initiate")
+                "https://api.github.com/repos/umasad087/repoB/actions/runs?event=main-workflow-initiate")
 
               # Extract the workflow status
               STATUS=$(echo "$WORKFLOWS" | jq -r '.workflow_runs[] | select(.status!="completed").status')
