@@ -8,11 +8,24 @@ jobs:
   snyk-code-OSS-scan:
     runs-on: ubuntu-latest
     steps:
-      - name: snyk code and OSS scan
-        run: |
-          echo "Initial Snyk setup on runner code goes here"
-          echo "Snyk code scan code goes here"
-          echo "Snyk OSS scan code goes here"
+    # Checkout the repository
+    - name: Checkout Code
+      uses: actions/checkout@v2
+      with:
+        repository: umasad087/repoB
+        token: ${{ secrets.${TOKEN} }}
+      env:
+          TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+    # Run Snyk to test the project for vulnerabilities (replace SNYK_TOKEN with your secret)
+    - name: Run Snyk Code Analysis
+      uses: snyk/actions@v3
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      with:
+        args: test --all-projects
+    
+  
   # First job: triggers a workflow in another repository
   trigger-compile-code:
     needs: snyk-code-OSS-scan
@@ -63,11 +76,31 @@ jobs:
     needs: wait-one  # Make sure this job only runs after the "wait" job finishes
     runs-on: ubuntu-latest
     steps:
-      - name: snyk-image-scan
-        run: |
-          echo "Snyk image scan code goes here."
+        # Checkout the repository
+        - name: Checkout Code
+          uses: actions/checkout@v2
+          with:
+            repository: umasad087/repoB
+            token: ${{ secrets.${TOKEN} }}
+          env:
+            TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
-  # fourth job
+    # Log in to Docker Hub (replace DOCKER_USERNAME and DOCKER_PASSWORD with your secrets)
+        - name: Log in to Docker Hub
+          uses: docker/login-action@v2
+          with:
+            username: ${{ secrets.DOCKER_USERNAME }}
+            password: ${{ secrets.DOCKER_PASSWORD }}
+
+    # Run Snyk to scan an existing image (replace SNYK_TOKEN and your-dockerhub-username/your-repo-name:version)
+        - name: Run Snyk Image Analysis
+          uses: snyk/actions@v3
+          env:
+            SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          with:
+            args: container test ${{ secrets.DOCKER_USERNAME }}/your-repo-name:version
+        
+ # fourth job
   trigger-deploy:
     needs: snyk-image-scan
     runs-on: ubuntu-latest
@@ -121,10 +154,29 @@ jobs:
             #STATUS=$(echo $WORKFLOWS | jq -r '.workflow_runs[] | select(.id=='"$WORKFLOW_ID"').status')
         env:
           TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+  snyk_container_scan:
+    name: Snyk Container Security Scan
+    runs-on: ubuntu-latest
+    needs: wait-two
 
+    steps:
+    # Log in to Docker Hub
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    # Run Snyk to scan the container image (replace SNYK_TOKEN and your-dockerhub-username/your-repo-name)
+    - name: Run Snyk Container Analysis
+      uses: snyk/actions@v3
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      with:
+        args: container test your-dockerhub-username/your-repo-name:latest
   # sixth job: build and test, which depends on the "wait" job
   end-pipeline:
-    needs: wait-two  # Make sure this job only runs after the "wait" job finishes
+    needs: snyk_container_scan # Make sure this job only runs after the "wait" job finishes
     runs-on: ubuntu-latest
     steps:
       - name: end-main-pipeline
