@@ -16,14 +16,18 @@ jobs:
         token: ${TOKEN}
       env:
           TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
-    # Run Snyk to test the project for vulnerabilities (replace SNYK_TOKEN with your secret)
-    - name: Run Snyk Code Analysis
-      uses: snyk/actions@v0.4.0
-      env:
-        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
       with:
-        args: test --all-projects
+          node-version: '18'
+    - name: Install Snyk
+      run: npm install -g snyk
+    
+    - name: Authenticate Snyk
+      run: snyk auth ${{ secrets.SNYK_TOKEN }}
+
+    - name: Run Snyk Code Test
+      run: snyk code test --all-projects
     
   
   # First job: triggers a workflow in another repository
