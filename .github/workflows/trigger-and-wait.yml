@@ -19,7 +19,7 @@ jobs:
 
     # Run Snyk to test the project for vulnerabilities (replace SNYK_TOKEN with your secret)
     - name: Run Snyk Code Analysis
-      uses: snyk/actions@v3
+      uses: snyk/actions@v2
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       with:
@@ -170,7 +170,7 @@ jobs:
 
     # Run Snyk to scan the container image (replace SNYK_TOKEN and your-dockerhub-username/your-repo-name)
     - name: Run Snyk Container Analysis
-      uses: snyk/actions@v3
+      uses: snyk/actions@v2
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       with:
