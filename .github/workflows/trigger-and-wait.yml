@@ -19,7 +19,7 @@ jobs:
 
     # Run Snyk to test the project for vulnerabilities (replace SNYK_TOKEN with your secret)
     - name: Run Snyk Code Analysis
-      uses: snyk/actions@v2
+      uses: snyk/actions@v2.0.0
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       with:
