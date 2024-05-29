@@ -8,7 +8,7 @@ jobs:
   trigger-compile-code1:
     runs-on: ubuntu-latest
     steps:
-      - uses: https://api.github.com/repos/.github/workflows/compile-code.yml@main
+      - uses: umasad087/repos/.github/workflows/compile-code.yml@main
   snyk-code-OSS-scan:
     runs-on: ubuntu-latest
     steps:
