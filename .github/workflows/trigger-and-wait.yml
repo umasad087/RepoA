@@ -6,7 +6,6 @@ on:
   
 jobs:
   trigger-compile-code1:
-    runs-on: ubuntu-latest
       uses:  umasad087/repos/.github/workflows/compile-code.yml@main
   
   snyk-code-OSS-scan:
